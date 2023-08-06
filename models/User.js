@@ -1,19 +1,52 @@
 import mongoose from "mongoose";
+import Joi from "joi";
+
+const GENDER = {
+    MALE: 'MALE',
+    FEMALE: 'FEMALE'
+}
+
+const USER_TYPE = {
+    ADMIN: 'ADMIN',
+    STUDENT: 'STUDENT',    
+    STAFF: 'STAFF'
+}
+
+const Schema = mongoose.Schema;
+const { ObjectId } = Schema.Types;
+
+
+export const validateRegister = Joi.object({
+    userType: Joi.string().valid(...Object.values(USER_TYPE)).required(),
+    fullName: Joi.string().required(),
+    regNumber: Joi.string().min(11).max(11).optional(),
+    employeeId: Joi.string().optional(),
+    age: Joi.number().required(),
+    gender: Joi.string().valid(...Object.values(GENDER)).required(),
+    dob: Joi.date().required(),
+    address: Joi.string().max(150).required(),
+    phoneNumber: Joi.string().max(11).required(),
+    photo: Joi.string().optional(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+    isAdmin: Joi.boolean().required()
+});
 
 const UserSchema = new mongoose.Schema({
+    id: { type: ObjectId, require: true },
     userType: {
         type: String,
         require: true
     },
-    userFullName: {
+    fullName: {
         type: String,
         require: true,
         unique: true
     },
-    admissionId: {
+    regNumber: {
         type: String,
-        min: 3,
-        max: 15,
+        min: 11,
+        max: 11,
     },
     employeeId: {
         type: String,
@@ -33,9 +66,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    mobileNumber: {
+    phoneNumber: {
         type: Number,
-        require: true
+        require: true,
+        max: 11,
     },
     photo: {
         type: String,
@@ -50,7 +84,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         require: true,
-        min: 6
+        min: 8
     },
     points: {
         type: Number,
@@ -69,8 +103,11 @@ const UserSchema = new mongoose.Schema({
         default: false
     }
 },
-    {
-        timestamps: true
-    });
+{
+    timestamps: true
+});
+
+// UserSchema.add('collection', 'User');
+UserSchema.set('collection', 'User');
 
 export default mongoose.model("User", UserSchema);
