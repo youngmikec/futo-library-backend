@@ -1,7 +1,12 @@
 import express from "express";
 import User from "../models/User.js";
+import { fetchHandler } from "../controllers/user-controller.js";
+import { checkAuth, isValidAdmin } from "../middleware/authorization.js";
 
-const router = express.Router()
+const router = express.Router();
+
+router.get("/allUsers", [checkAuth, isValidAdmin], fetchHandler);
+
 
 /* Getting user by id */
 router.get("/getuser/:id", async (req, res) => {

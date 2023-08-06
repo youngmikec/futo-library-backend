@@ -1,6 +1,9 @@
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { JWT, USER_TYPE } from "../constant/index.js";
 
-import User, { validateRegister } from "../models/User.js";
+
+import User, { validateRegister, validateLogin } from "../models/User.js";
 
 
 export const registerService = async (data) => {
@@ -55,5 +58,36 @@ export const registerService = async (data) => {
         return response;
     }catch(err){
         throw new Error(`Error creating User record. ${err.message}`);
+    }
+}
+
+export const loginService = async (data) => {
+    try{
+        const { error } = validateLogin.validate(data);
+        if(error) throw new Error(`Invalid Request ${ error.message }`);
+
+        const {email, password, userType} = data;
+
+        const user = await User.findOne({ email: email }).exec();
+        if(!user){
+            throw new Error(`Invalid email or password`);
+        }
+        if(userType !== user.userType){
+            throw new Error('User mismatch');
+        }
+        if (!bcrypt.compareSync(password, `${user.password}`)) {
+            throw new Error("Wrong password.");
+        }
+
+        const payload = { id: `${user._id}`, time: new Date(), userType: user.userType };
+        const token = jwt.sign(payload, JWT.jwtSecret, {
+            expiresIn: JWT.tokenExpireTime,
+        });
+
+        if(!token) throw new Error(`Error occurred generating token`);
+
+        return { user, token };
+    }catch(err){
+        throw new Error(`Error Login. ${err.message}`);
     }
 }

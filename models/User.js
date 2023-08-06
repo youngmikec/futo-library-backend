@@ -1,16 +1,7 @@
 import mongoose from "mongoose";
 import Joi from "joi";
+import { GENDER, USER_TYPE } from "../constant/index.js";
 
-const GENDER = {
-    MALE: 'MALE',
-    FEMALE: 'FEMALE'
-}
-
-const USER_TYPE = {
-    ADMIN: 'ADMIN',
-    STUDENT: 'STUDENT',    
-    STAFF: 'STAFF'
-}
 
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
@@ -32,16 +23,22 @@ export const validateRegister = Joi.object({
     isAdmin: Joi.boolean().required()
 });
 
+export const validateLogin = Joi.object({
+    userType: Joi.string().valid(...Object.values(USER_TYPE)).required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+    isAdmin: Joi.boolean().optional()
+});
+
 const UserSchema = new mongoose.Schema({
     id: { type: ObjectId, require: true },
     userType: {
         type: String,
-        require: true
+        require: true,
     },
     fullName: {
         type: String,
         require: true,
-        unique: true
     },
     regNumber: {
         type: String,
