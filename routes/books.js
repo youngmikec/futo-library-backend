@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
 /* Adding book */
 router.post("/addbook", [checkAuth, isValidAdmin], createHandler);
 
-/* Addding book */
+/* Update book */
 router.put("/updatebook/:recordId", [checkAuth, isValidAdmin], updateHandler);
 
 /* Remove book  */
