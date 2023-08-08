@@ -47,7 +47,6 @@ export async function checkAuth(req, res, next) {
         const decoded = await decodeToken(token);
         const user = await User.findById(decoded.id).exec();
         
-        console.log('user', user);
         // const { userType, accessLevel, email, phone } = user;
         const { accessLevel, email, phoneNumber } = user;
             req.user = {

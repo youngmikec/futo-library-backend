@@ -1,6 +1,50 @@
 import mongoose from "mongoose";
+import Joi from "joi";
+import { BOOK_STATUS, DATABASE } from "../constant/index.js";
+
+const Schema = mongoose.Schema;
+const { ObjectId } = Schema.Types;
+
+export const validateBookCreate = Joi.object({
+    bookName: Joi.string().required(),
+    alternateTitle: Joi.string().optional(),
+    bookImg: Joi.string().optional(),
+    author: Joi.string().required(),
+    language: Joi.string().required(),
+    publisher: Joi.string().required(),
+    bookCountAvailable: Joi.number().required(),
+    bookStatus: Joi.string().valid(...Object.values(BOOK_STATUS)).optional(),
+    categories: Joi.array().items(Joi.string().regex(DATABASE.OBJECT_ID_REGEX)).required(),
+    createdBy: Joi.string().regex(DATABASE.OBJECT_ID_REGEX, "valid objectID").required(),
+});
+
+export const validateBookUpdate = Joi.object({
+    bookName: Joi.string().optional(),
+    alternateTitle: Joi.string().optional(),
+    bookImg: Joi.string().optional(),
+    author: Joi.string().optional(),
+    language: Joi.string().optional(),
+    publisher: Joi.string().optional(),
+    bookCountAvailable: Joi.number().optional(),
+    bookStatus: Joi.string().valid(...Object.values(BOOK_STATUS)).optional(),
+    categories: Joi.array().items(Joi.string().regex(DATABASE.OBJECT_ID_REGEX)).optional(),
+    transactions: Joi.array().items(Joi.string().regex(DATABASE.OBJECT_ID_REGEX)).optional(),
+    updatedBy: Joi.string()
+    .regex(DATABASE.OBJECT_ID_REGEX, "valid objectID")
+    .optional(),
+});
+
 
 const BookSchema = new mongoose.Schema({
+    id: { type: ObjectId, require: true },
+    bookImg: { 
+        type: String,
+        required: false
+    },
+    code: {
+        type: String,
+        required: true,
+    },
     bookName:{
         type:String,
         require:true
@@ -27,7 +71,7 @@ const BookSchema = new mongoose.Schema({
     },
     bookStatus:{
         type:String,
-        default:"Available"
+        default:"AVAILABLE"
     },
     categories:[{ 
         type: mongoose.Types.ObjectId, 
@@ -36,10 +80,18 @@ const BookSchema = new mongoose.Schema({
     transactions:[{
         type:mongoose.Types.ObjectId,
         ref:"BookTransaction"
-    }]
+    }],
+    createdAt: {
+        type: Date,
+        select: true,
+    },
+    createdBy: { type: ObjectId, ref: "User", required: true, select: true },
+    updatedBy: { type: ObjectId, ref: "User", select: true },
 },
 {
     timestamps:true
 })
 
-export default mongoose.model("Book",BookSchema)
+BookSchema.set('collection', 'Book');
+
+export default mongoose.model("Book", BookSchema)
