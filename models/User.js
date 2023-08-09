@@ -24,7 +24,7 @@ export const validateRegister = Joi.object({
 });
 
 export const validateLogin = Joi.object({
-    userType: Joi.string().valid(...Object.values(USER_TYPE)).required(),
+    // userType: Joi.string().valid(...Object.values(USER_TYPE)).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
     isAdmin: Joi.boolean().optional()
@@ -39,14 +39,17 @@ const UserSchema = new mongoose.Schema({
     fullName: {
         type: String,
         require: true,
+        select: true,
     },
     regNumber: {
         type: String,
+        select: true,
         min: 11,
-        max: 11,
+        max: 15,
     },
     employeeId: {
         type: String,
+        select: true,
         min: 3,
         max: 15,
     },
@@ -66,7 +69,6 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: {
         type: Number,
         require: true,
-        max: 11,
     },
     photo: {
         type: String,

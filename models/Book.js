@@ -37,13 +37,13 @@ export const validateBookUpdate = Joi.object({
 
 const BookSchema = new mongoose.Schema({
     id: { type: ObjectId, require: true },
-    bookImg: { 
-        type: String,
-        required: false
-    },
     code: {
         type: String,
         required: true,
+    },
+    bookImg: { 
+        type: String,
+        required: false
     },
     bookName:{
         type:String,

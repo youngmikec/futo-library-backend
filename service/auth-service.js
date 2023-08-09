@@ -32,23 +32,11 @@ export const registerService = async (data) => {
 
 
         const salt = await bcrypt.genSalt(10);
-        const hashedPass = await bcrypt.hash(data.password, salt);
+        const hashedPass = await bcrypt.hashSync(data.password, salt);
+        data.password = hashedPass;
     
         /* Create a new user */
-        const newuser = await new User({
-            userType: data.userType,
-            userFullName: data.userFullName,
-            regNumber: data.admissionId,
-            employeeId: data.employeeId,
-            age: data.age,
-            dob: data.dob,
-            gender: data.gender,
-            address: data.address,
-            mobileNumber: data.mobileNumber,
-            email: data.email,
-            password: hashedPass,
-            isAdmin: data.isAdmin,
-        });
+        const newuser = await new User(data);
     
         /* Save User and Return */
         const response  = await newuser.save();
@@ -66,15 +54,13 @@ export const loginService = async (data) => {
         const { error } = validateLogin.validate(data);
         if(error) throw new Error(`Invalid Request ${ error.message }`);
 
-        const {email, password, userType} = data;
+        const {email, password} = data;
 
         const user = await User.findOne({ email: email }).exec();
         if(!user){
             throw new Error(`Invalid email or password`);
         }
-        if(userType !== user.userType){
-            throw new Error('User mismatch');
-        }
+        
         if (!bcrypt.compareSync(password, `${user.password}`)) {
             throw new Error("Wrong password.");
         }

@@ -34,9 +34,6 @@ export const fetchService = async (query) => {
         .select(projection)
         .exec();
 
-        console.log(filter.query, filter.user);
-        console.log(result);
-
         if(!result){
             throw new Error(`${module} record not found`);
         }
