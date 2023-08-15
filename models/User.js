@@ -20,6 +20,7 @@ export const validateRegister = Joi.object({
     photo: Joi.string().optional(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+    createdBy: Joi.string().regex(DATABASE.OBJECT_ID_REGEX, "valid objectID").required()
     // isAdmin: Joi.boolean().required()
 });
 

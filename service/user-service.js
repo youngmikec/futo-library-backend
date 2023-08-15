@@ -88,3 +88,16 @@ export const updateUserService = async (recordId, data, user) => {
         throw new Error(`Error updating ${module} record. ${err.message}`);
     }
 }
+
+
+export async function deleteUserService(recordId) {
+    try {
+        const result = await User.findOneAndRemove({ _id: recordId });
+        if (!result) {
+            throw new Error(`${module} record not found.`);
+        }
+        return result;
+    } catch (err) {
+        throw new Error(`Error deleting ${module} record. ${err.message}`);
+    }
+}
