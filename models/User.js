@@ -85,7 +85,7 @@ const UserSchema = new mongoose.Schema({
         default: ""
     },
     phoneNumber: {
-        type: Number,
+        type: String,
         require: true,
     },
     photo: {
