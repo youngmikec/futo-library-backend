@@ -1,5 +1,5 @@
 import { fail, response, success } from "../middleware/response.js";
-import { fetchService } from "../service/user-service.js";
+import { fetchService, updateUserService } from "../service/user-service.js";
 
 
 export async function fetchHandler(req, res) {
@@ -10,4 +10,14 @@ export async function fetchHandler(req, res) {
     //   loging(module, req, err);
       return fail(res, 400, `${err.message}`);
     }
+}
+
+export const updateUserHandler = async (req, res) => {
+  try {
+      const { recordId } = req.params;
+      const result = await updateUserService(recordId, req.body, req.user);
+      return success(res, 200, result);
+  } catch (err) {
+      return fail(res, 400, `${err.message}`);
+  }
 }

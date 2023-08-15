@@ -1,5 +1,5 @@
 import aqp from "api-query-params";
-import User from '../models/User.js';
+import User, { validateUpdateUser } from '../models/User.js';
 import { generateCode, hash, safeGet, setLimit, generateOtp } from "../util/helpers.js";
 
 
@@ -42,5 +42,49 @@ export const fetchService = async (query) => {
         return { payload: result, total, count, msg, skip, limit, sort };
     }catch (error){
         throw new Error(`Error retrieving ${module} record ${error.message}`);
+    }
+}
+
+export const updateUserService = async (recordId, data, user) => {
+    try {
+        const { error } = validateUpdateUser.validate(data);
+        if (error) {
+            throw new Error(`Invalid request. ${error.message}`);
+        }
+
+        const returnedUser = await User.findById(recordId).exec();
+        if (!returnedUser) throw new Error(`${module} record not found.`);
+        console.log(returnedUser);
+        if (data.password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPass = await bcrypt.hashSync(data.password, salt);
+            data.password = hashedPass;
+        }
+        if(data.employeeId && returnedUser.userType !== 'ADMIN'){
+            throw new Error(`Cannot update employeeId for student. Do you mean reg number?`)
+        }
+        if(data.regNumber && returnedUser.userType !== 'STUDENT'){
+            throw new Error(`Cannot update reg number for Admin Staff. Do you mean employeeId ?`)
+        }
+
+        if(data.userType) data.isAdmin = data.userType === 'ADMIN' ?  true : false;
+        
+        // if (`${returnedUser.createdBy}` !== user.id) {
+        //     throw new Error(`user ${user.email} is not an authorized user`);
+        // }
+
+        // if (`${returnedBook.status}` !== "LOADING") {
+        //   throw new Error(`Payment Status is  ${returnedBook.status}`);
+        // }
+        
+        const result = await User.findOneAndUpdate({ _id: recordId }, data, {
+            new: true,
+        }).exec();
+        if (!result) {
+            throw new Error(`${module} record not found.`);
+        }
+        return result;
+    } catch (err) {
+        throw new Error(`Error updating ${module} record. ${err.message}`);
     }
 }

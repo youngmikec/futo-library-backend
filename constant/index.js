@@ -11,8 +11,8 @@ export const GENDER = {
 
 export const USER_TYPE = {
     ADMIN: 'ADMIN',
-    STUDENT: 'STUDENT',    
-    STAFF: 'STAFF'
+    STUDENT: 'STUDENT',
+    // STAFF: 'STAFF'
 }
 
 export const BOOK_STATUS = {

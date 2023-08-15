@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Joi from "joi";
-import { GENDER, USER_TYPE } from "../constant/index.js";
+import { DATABASE, GENDER, USER_TYPE } from "../constant/index.js";
 
 
 const Schema = mongoose.Schema;
@@ -20,7 +20,24 @@ export const validateRegister = Joi.object({
     photo: Joi.string().optional(),
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
-    isAdmin: Joi.boolean().required()
+    // isAdmin: Joi.boolean().required()
+});
+
+export const validateUpdateUser = Joi.object({
+    userType: Joi.string().valid(...Object.values(USER_TYPE)).optional(),
+    fullName: Joi.string().optional(),
+    regNumber: Joi.string().min(11).max(11).optional(),
+    employeeId: Joi.string().optional(),
+    age: Joi.number().optional(),
+    gender: Joi.string().valid(...Object.values(GENDER)).optional(),
+    dob: Joi.date().optional(),
+    address: Joi.string().max(150).optional(),
+    phoneNumber: Joi.string().max(11).optional(),
+    photo: Joi.string().optional(),
+    email: Joi.string().email().optional(),
+    password: Joi.string().min(8).optional(),
+    isAdmin: Joi.boolean().optional(),
+    updatedBy: Joi.string().regex(DATABASE.OBJECT_ID_REGEX, "valid objectID").optional()
 });
 
 export const validateLogin = Joi.object({
@@ -100,7 +117,17 @@ const UserSchema = new mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
-    }
+    },
+    createdAt: {
+        type: Date,
+        select: true,
+    },
+    updatedAt: {
+        type: Date,
+        select: true,
+    },
+    createdBy: { type: ObjectId, ref: "User", required: true, select: true },
+    updatedBy: { type: ObjectId, ref: "User", select: true },
 },
 {
     timestamps: true

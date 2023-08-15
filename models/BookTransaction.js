@@ -13,7 +13,7 @@ export const validateTransactionCreate = Joi.object({
     transactionType: Joi.string().valid(...Object.values(TRANSACTION_TYPE)).required(),
     fromDate: Joi.date().required(),
     toDate: Joi.date().required(),
-    returnDate: Joi.date().required(),
+    // returnDate: Joi.date().required(),
     transactionStatus: Joi.string().valid(...Object.values(TRANSACTION_STATUS)).optional(),
     createdBy: Joi.string().regex(DATABASE.OBJECT_ID_REGEX, "valid objectID").required(),
 })

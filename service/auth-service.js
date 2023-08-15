@@ -1,8 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT, USER_TYPE } from "../constant/index.js";
-
-
 import User, { validateRegister, validateLogin } from "../models/User.js";
 
 
