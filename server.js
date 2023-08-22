@@ -13,9 +13,16 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
+// CORS options
+const corsOptions = {
+  origin:'http://localhost:3000', 
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200
+}
+
 /* Middlewares */
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 /* API Routes */
 app.use("/api/auth", authRoutes);

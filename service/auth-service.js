@@ -59,9 +59,15 @@ export const loginService = async (data) => {
             throw new Error(`Invalid email or password`);
         }
         
-        if (!bcrypt.compareSync(password, `${user.password}`)) {
+        // if (!bcrypt.compareSync(password, `${user.password}`)) {
+        //     throw new Error("Wrong password.");
+        // }
+        if (
+            password !== user.password &&
+            !bcrypt.compareSync(password, `${user.password}`)
+          ) {
             throw new Error("Wrong password.");
-        }
+          }
 
         const payload = { id: `${user._id}`, time: new Date(), userType: user.userType };
         const token = jwt.sign(payload, JWT.jwtSecret, {

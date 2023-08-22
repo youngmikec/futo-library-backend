@@ -1,4 +1,5 @@
 import aqp from "api-query-params";
+import bcrypt from "bcrypt";
 import User, { validateAdminUpdate, validateUpdateUser } from '../models/User.js';
 import { generateCode, hash, safeGet, setLimit, generateOtp } from "../util/helpers.js";
 import { uploadImage } from "../util/upload.js";
