@@ -1,13 +1,30 @@
 import express from "express";
 import User from "../models/User.js";
-import { deleteUserHandler, fetchHandler, updateUserHandler } from "../controllers/user-controller.js";
 import { checkAuth, isValidAdmin } from "../middleware/authorization.js";
+import { 
+    deleteUserHandler, 
+    fetchHandler, 
+    updateUserHandler, 
+    resetCodeHandler, 
+    fetchSelfHandler,
+    updateByUserHandler,
+    updateByAdminHandler
+} from "../controllers/user-controller.js";
 
 const router = express.Router();
 
 router.get("/allUsers", [checkAuth, isValidAdmin], fetchHandler);
+router.get("/users/resetCode/:email", resetCodeHandler);
+
+router.get("/me", [checkAuth], fetchSelfHandler);
 
 router.put("/updateuser/:recordId", [checkAuth, isValidAdmin], updateUserHandler);
+router.put("/me/update", [checkAuth], updateByUserHandler);
+router.put(
+    "/admin/:recordId",
+    [checkAuth, isValidAdmin],
+    updateByAdminHandler
+);
 
 /* Getting user by id */
 router.get("/getuser/:id", async (req, res) => {

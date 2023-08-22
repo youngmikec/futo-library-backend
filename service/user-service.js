@@ -1,9 +1,23 @@
 import aqp from "api-query-params";
-import User, { validateUpdateUser } from '../models/User.js';
+import User, { validateAdminUpdate, validateUpdateUser } from '../models/User.js';
 import { generateCode, hash, safeGet, setLimit, generateOtp } from "../util/helpers.js";
+import { uploadImage } from "../util/upload.js";
 
 
 const module = 'User';
+
+// const sendMailService = async (userEmail, subject, message) => {
+//     try {
+//       const result = await sendMail(
+//         "admin@chinosexchange.com",
+//         userEmail,
+//         subject,
+//         message
+//       );
+//     } catch (err) {
+//       console.error(err);
+//     }
+// };
 
 export const fetchService = async (query) => {
     try{
@@ -42,6 +56,36 @@ export const fetchService = async (query) => {
         return { payload: result, total, count, msg, skip, limit, sort };
     }catch (error){
         throw new Error(`Error retrieving ${module} record ${error.message}`);
+    }
+}
+
+export async function fetchSelfService(query, user) {
+    try {
+      const { projection, population } = aqp(query);
+      console.log('user', user)
+      const filter = { _id: safeGet(user, "id") };
+      const total = await User.countDocuments(filter).exec();
+      const result = await User.findOne(filter)
+        .populate(population)
+        .select(projection)
+        .exec();
+      if (!result) {
+        throw new Error(`${module} record not found.`);
+      }
+      const count = result.length;
+      const msg = `User record retrieved successfully!`;
+      const entity = {
+        payload: result,
+        total,
+        count,
+        msg,
+        skip: 0,
+        limit: 0,
+        sort: 1,
+      };
+      return entity;
+    } catch (err) {
+      throw new Error(`Error retrieving ${module} record. ${err.message}`);
     }
 }
 
@@ -88,6 +132,52 @@ export const updateUserService = async (recordId, data, user) => {
         throw new Error(`Error updating ${module} record. ${err.message}`);
     }
 }
+
+export async function updateByUserService(recordId, data) {
+    try {
+      const { error } = validateUpdateUser.validate(data);
+      if (error) throw new Error(`Error validating User data. ${error.message}`);
+      if (safeGet(data, "password")) data.password = hash(data.password);
+      const { photo } = data;
+      if (photo) {
+        const uploadResult = await uploadImage(photo);
+        data.photo = uploadResult.url;
+      } else {
+        console.log("no photo image found");
+      }
+  
+      const user = await User.findOneAndUpdate({ _id: recordId }, data, {
+        new: true,
+      }).exec();
+      if (!user) {
+        throw new Error(`User record not found.`);
+      }
+  
+      let result = user;
+      return result;
+    } catch (err) {
+      throw new Error(`Error updating User record. ${err.message}`);
+    }
+}
+  
+export async function updateByAdminService(recordId, data) {
+    try {
+        const { error } = validateAdminUpdate.validate(data);
+        if (error) throw new Error(`Error validating User data. ${error.message}`);
+        if (safeGet(data, "password")) data.password = hash(data.password);
+        const result = await User.findOneAndUpdate({ _id: recordId }, data, {
+        new: true,
+        }).exec();
+        if (!result) {
+        throw new Error(`User record not found.`);
+        }
+        return result;
+        //! Notify User
+    } catch (err) {
+        throw new Error(`Error updating User record. ${err.message}`);
+    }
+}
+  
 
 
 export async function deleteUserService(recordId) {

@@ -1,8 +1,9 @@
 import aqp from "api-query-params";
 import User from "../models/User.js";
 import Book, { validateBookCreate, validateBookUpdate } from '../models/Book.js';
-import { generateCode, generateModelCode, setLimit } from "../util/helpers.js";
+import { generateModelCode, setLimit } from "../util/helpers.js";
 import BookCategory from "../models/BookCategory.js";
+import { uploadImage } from "../util/upload.js";
 import { USER_TYPE } from "../constant/index.js";
 
 
@@ -46,6 +47,12 @@ export async function createService(data) {
         if (error) {
             throw new Error(`Invalid request. ${error.message}`);
         }
+
+        const { bookImg } = data;
+        if(bookImg){
+            const uploadResult = await uploadImage(bookImg);
+            data.bookImg = uploadResult.url;
+        }
         
         data.code = await generateModelCode(Book);
         const senderObj = await User.findById(data.createdBy).exec();
@@ -73,13 +80,21 @@ export async function updateService(recordId, data, user) {
 
         const returnedBook = await Book.findById(recordId).exec();
         if (!returnedBook) throw new Error(`${module} record not found.`);
-        if (`${returnedBook.createdBy}` !== user.id) {
-            throw new Error(`user ${user.email} is not an authorized user`);
+        // if (`${returnedBook.createdBy}` !== user.id) {
+        //     throw new Error(`user ${user.email} is not an authorized user`);
+        // }
+        if (user.userType !== USER_TYPE.ADMIN) {
+            throw new Error(`user does not have authorization to update record`);
         }
-
         // if (`${returnedBook.status}` !== "LOADING") {
         //   throw new Error(`Payment Status is  ${returnedBook.status}`);
         // }
+
+        const { bookImg } = data;
+        if(bookImg){
+            const uploadResult = await uploadImage(bookImg);
+            data.bookImg = uploadResult.url;
+        }
         
         const result = await Book.findOneAndUpdate({ _id: recordId }, data, {
             new: true,
