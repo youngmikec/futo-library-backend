@@ -14,9 +14,11 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 4000;
 
+const allowedOrigins = ["https://futo-library.vercel.app/", "http://localhost:3000", "https://futo-library-pbrckk9qg-youngmikec.vercel.app/"]
+
 // CORS options
 const corsOptions = {
-  origin:'http://localhost:3000', 
+  origin: allowedOrigins, 
   credentials:true,            //access-control-allow-credentials:true
   optionSuccessStatus:200
 }
